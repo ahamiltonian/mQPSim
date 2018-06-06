@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// 
+//
 //
 /// \file mQPSimRunAction.cc
 /// \brief Implementation of the mQPSimRunAction class
@@ -31,6 +31,7 @@
 #include "mQPSimRunAction.hh"
 #include "mQPSimPrimaryGeneratorAction.hh"
 #include "mQPSimDetectorConstruction.hh"
+#include "mQPSimAnalysis.hh"
 // #include "mQPSimRun.hh"
 
 #include "G4RunManager.hh"
@@ -64,6 +65,40 @@ mQPSimRunAction::mQPSimRunAction()
   G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
   accumulableManager->RegisterAccumulable(fEdep);
   accumulableManager->RegisterAccumulable(fEdep2);
+
+
+  // Create analysis manager
+  // The choice of analysis technology is done via selectin of a namespace
+  // in mQPSimAnalysis.hh
+  auto analysisManager = G4AnalysisManager::Instance();
+  G4cout << "Using " << analysisManager->GetType() << G4endl;
+
+  // Create directories
+  //analysisManager->SetHistoDirectoryName("histograms");
+  //analysisManager->SetNtupleDirectoryName("ntuple");
+  analysisManager->SetVerboseLevel(1);
+  analysisManager->SetNtupleMerging(true);
+    // Note: merging ntuples is available only with Root output
+
+  // Book histograms, ntuple
+  //
+
+  // Creating histograms
+  analysisManager->CreateH1("Eabs","Edep in absorber", 100, 0., 800*MeV);
+  analysisManager->CreateH1("Egap","Edep in gap", 100, 0., 100*MeV);
+  analysisManager->CreateH1("Labs","trackL in absorber", 100, 0., 1*m);
+  analysisManager->CreateH1("Lgap","trackL in gap", 100, 0., 50*cm);
+
+  // Creating ntuple
+  //
+  analysisManager->CreateNtuple("mQPSim", "Edep and TrackL");
+  analysisManager->CreateNtupleDColumn("Eabs");
+  analysisManager->CreateNtupleDColumn("Egap");
+  analysisManager->CreateNtupleDColumn("Labs");
+  analysisManager->CreateNtupleDColumn("Lgap");
+  analysisManager->FinishNtuple();
+
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -81,6 +116,14 @@ void mQPSimRunAction::BeginOfRunAction(const G4Run*)
   // reset accumulables to their initial values
   G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
   accumulableManager->Reset();
+
+  // Get analysis manager
+  auto analysisManager = G4AnalysisManager::Instance();
+
+  // Open an output file
+  //
+  G4String fileName = "mQPSim_output";
+  analysisManager->OpenFile(fileName);
 
 }
 
@@ -149,6 +192,48 @@ void mQPSimRunAction::EndOfRunAction(const G4Run* run)
      << "------------------------------------------------------------"
      << G4endl
      << G4endl;
+
+
+
+  // print histogram statistics
+  //
+  auto analysisManager = G4AnalysisManager::Instance();
+  if ( analysisManager->GetH1(1) ) {
+    G4cout << G4endl << " ----> print histograms statistic ";
+    if(IsMaster()) {
+      G4cout << "for the entire run " << G4endl << G4endl;
+    }
+    else {
+      G4cout << "for the local thread " << G4endl << G4endl;
+    }
+
+    G4cout << " EAbs : mean = "
+       << G4BestUnit(analysisManager->GetH1(0)->mean(), "Energy")
+       << " rms = "
+       << G4BestUnit(analysisManager->GetH1(0)->rms(),  "Energy") << G4endl;
+
+    G4cout << " EGap : mean = "
+       << G4BestUnit(analysisManager->GetH1(1)->mean(), "Energy")
+       << " rms = "
+       << G4BestUnit(analysisManager->GetH1(1)->rms(),  "Energy") << G4endl;
+
+    G4cout << " LAbs : mean = "
+      << G4BestUnit(analysisManager->GetH1(2)->mean(), "Length")
+      << " rms = "
+      << G4BestUnit(analysisManager->GetH1(2)->rms(),  "Length") << G4endl;
+
+    G4cout << " LGap : mean = "
+      << G4BestUnit(analysisManager->GetH1(3)->mean(), "Length")
+      << " rms = "
+      << G4BestUnit(analysisManager->GetH1(3)->rms(),  "Length") << G4endl;
+  }
+
+  // save histograms & ntuple
+  //
+  analysisManager->Write();
+  analysisManager->CloseFile();
+
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

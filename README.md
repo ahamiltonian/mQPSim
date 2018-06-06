@@ -50,13 +50,19 @@ https://stackoverflow.com/questions/23917587/geant4-example-b1-build-error-no-ru
   - run 'cmake ../'
   - run 'make', this should create an executable named mQPSim
   - test the executable by running './mQPSim'
-  
-------------------------
-Notes on the graphics viewer
 
+** Notes on the graphics viewer
 - they all seem outdated...
 - Wt looks like it is actually up to date, I'm trying that one...
 - https://www.webtoolkit.eu/wt/documentation
    - needed to get boost libraries https://www.boost.org/users/download/
    - frustrated...  could not get wt to see the boost libraries
    - aborting...
+
+
+
+ROOT Installation
+------------------
+
+1. go to root.cern.ch -> download -> latest "pro" release ("pro" is for production, not professional)
+2. I downloaded the dmg for OSX 10.13
