@@ -66,3 +66,5 @@ ROOT Installation
 
 1. go to root.cern.ch -> download -> latest "pro" release ("pro" is for production, not professional)
 2. I downloaded the dmg for OSX 10.13
+3. run the dmg to install
+4. add root to your command line by adding "source /Applications/root_v6.12.06/bin/thisroot.sh" to your .bash_profile
