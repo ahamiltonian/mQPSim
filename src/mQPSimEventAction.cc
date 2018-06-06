@@ -34,6 +34,7 @@
 
 #include "G4Event.hh"
 #include "G4RunManager.hh"
+#include "G4UnitsTable.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -57,7 +58,7 @@ void mQPSimEventAction::BeginOfEventAction(const G4Event*)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void mQPSimEventAction::EndOfEventAction(const G4Event*)
+void mQPSimEventAction::EndOfEventAction(const G4Event* event)
 {
   // accumulate statistics in run action
   fRunAction->AddEdep(fEdep);
@@ -90,12 +91,22 @@ void mQPSimEventAction::EndOfEventAction(const G4Event*)
 
   //print per event (modulo n)
   //
-  // auto eventID = event->GetEventID();
-  // auto printModulo = G4RunManager::GetRunManager()->GetPrintProgress();
-  // if ( ( printModulo > 0 ) && ( eventID % printModulo == 0 ) ) {
-  //   G4cout << "---> End of event: " << eventID << G4endl;
-  //   PrintEventStatistics(absoEdep, absoTrackLength, gapEdep, gapTrackLength);
-  // }
+  auto eventID = event->GetEventID();
+  auto printModulo = G4RunManager::GetRunManager()->GetPrintProgress();
+  //if ( ( printModulo > 0 ) && ( eventID % printModulo == 0 ) ) {
+    G4cout << "---> End of event output: " << eventID << G4endl;
+    G4cout
+       << "   Blah blah: energy: "
+       << std::setw(7) << G4BestUnit(fEdep, "Energy")
+       << "       energy again: "
+       << std::setw(7) << G4BestUnit(fEdep, "Length")
+       << G4endl
+       << "        Gap: and again: "
+       << std::setw(7) << G4BestUnit(fEdep, "Energy")
+       << "       and again: "
+       << std::setw(7) << G4BestUnit(fEdep, "Length")
+       << G4endl;
+  //}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
