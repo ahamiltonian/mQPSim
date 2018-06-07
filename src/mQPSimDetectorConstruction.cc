@@ -41,7 +41,12 @@
 #include "G4PVPlacement.hh"
 #include "G4SystemOfUnits.hh"
 
-//#include "G4SDManager.hh"
+// for the ConstructSDandField method
+#include "G4SDManager.hh"
+#include "G4MultiFunctionalDetector.hh"
+#include "G4VPrimitiveScorer.hh"
+#include "G4PSEnergyDeposit.hh"
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -137,7 +142,7 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
   G4double scintillator_dy =  10*cm;
   G4double scintillator_dz = 120*cm;
   G4Box* solidScintillator =
-    new G4Box("Scintillator",          //its name
+    new G4Box("ScintillatorBox",          //its name
               0.5*scintillator_dx,
               0.5*scintillator_dy,
               0.5*scintillator_dz);    //its size
@@ -146,13 +151,13 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
   G4LogicalVolume* logicScintillator =
     new G4LogicalVolume(solidScintillator,         //its solid
                         scintillator_mat,          //its material
-                        "Scintillator");           //its name
+                        "ScintillatorLV");           //its name
 
   // scintillator placement
   new G4PVPlacement(0,                       //no rotation
                     scintillator_pos,        //at position
                     logicScintillator,       //its logical volume
-                    "Scintillator",          //its name
+                    "ScintillatorPV",          //its name
                     logicEnv,                //its mother  volume
                     false,                   //no boolean operation
                     0,                       //copy number
@@ -211,15 +216,35 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-// void mQPSimDetectorConstruction::ConstructSDandField()
-// {
-//   // sensitive detectors
-//   auto sdManager = G4SDManager::GetSDMpointer();
-//   G4String SDname;
-//
-//   // auto scintillator = new mQPSimScintillatorSD(SDname="/scintillator");
-//   // sdManager->AddNewDetector(scintillator);
-//   // fScintillatorLogical->SetSensitiveDetector(scintillator);
-//
-//
-// }
+void mQPSimDetectorConstruction::ConstructSDandField()
+{
+
+  G4SDManager::GetSDMpointer()->SetVerboseLevel(1);
+
+  // declare Absorber as a MultiFunctionalDetector scorer
+  //
+  auto scintillatorDetector = new G4MultiFunctionalDetector("ScintillatorMFD");
+  G4SDManager::GetSDMpointer()->AddNewDetector(scintillatorDetector);
+
+  G4VPrimitiveScorer* primitive;
+  primitive = new G4PSEnergyDeposit("Edep");
+  scintillatorDetector->RegisterPrimitive(primitive);
+
+  // primitive = new G4PSTrackLength("TrackLength");
+  // auto charged = new G4SDChargedFilter("chargedFilter");
+  // primitive ->SetFilter(charged);
+  // absDetector->RegisterPrimitive(primitive);
+
+  SetSensitiveDetector("ScintillatorLV",scintillatorDetector);
+
+  //
+  // // sensitive detectors
+  // auto sdManager = G4SDManager::GetSDMpointer();
+  // G4String SDname;
+
+  // auto scintillator = new mQPSimScintillatorSD(SDname="/scintillator");
+  // sdManager->AddNewDetector(scintillator);
+  // fScintillatorLogical->SetSensitiveDetector(scintillator);
+
+
+}

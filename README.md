@@ -68,3 +68,10 @@ ROOT Installation
 2. I downloaded the dmg for OSX 10.13
 3. run the dmg to install
 4. add root to your command line by adding "source /Applications/root_v6.12.06/bin/thisroot.sh" to your .bash_profile
+
+
+WHAT TO DO NEXT LIST...
+-----------------------
+
+- got the ConstructSDandField method implemented in mQPSimDetectorConstruction.cc,
+- follow B4 example to add a hits collection in mQPSimEventAction.cc

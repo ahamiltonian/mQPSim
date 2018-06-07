@@ -92,7 +92,7 @@ void mQPSimEventAction::EndOfEventAction(const G4Event* event)
   //print per event (modulo n)
   //
   auto eventID = event->GetEventID();
-  auto printModulo = G4RunManager::GetRunManager()->GetPrintProgress();
+  //auto printModulo = G4RunManager::GetRunManager()->GetPrintProgress();
   //if ( ( printModulo > 0 ) && ( eventID % printModulo == 0 ) ) {
     G4cout << "---> End of event output: " << eventID << G4endl;
     G4cout

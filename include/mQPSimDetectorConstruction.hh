@@ -46,7 +46,7 @@ class mQPSimDetectorConstruction : public G4VUserDetectorConstruction
     virtual ~mQPSimDetectorConstruction();
 
     virtual G4VPhysicalVolume* Construct();
-    //virtual void ConstructSDandField();
+    virtual void ConstructSDandField();
 
     G4LogicalVolume* GetScoringVolume() const { return fScoringVolume; }
 
