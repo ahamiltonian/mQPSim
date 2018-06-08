@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// 
+//
 //
 /// \file mQPSimEventAction.hh
 /// \brief Definition of the mQPSimEventAction class
@@ -32,6 +32,7 @@
 #define mQPSimEventAction_h 1
 
 #include "G4UserEventAction.hh"
+#include "G4THitsMap.hh"
 #include "globals.hh"
 
 class mQPSimRunAction;
@@ -51,8 +52,16 @@ class mQPSimEventAction : public G4UserEventAction
     void AddEdep(G4double edep) { fEdep += edep; }
 
   private:
-    mQPSimRunAction* fRunAction;
-    G4double     fEdep;
+    // data members
+    mQPSimRunAction*  fRunAction;
+    G4double          fEdep;
+    G4int             fScintEdepHCID;
+
+    // methods
+    G4THitsMap<G4double>* GetHitsCollection(G4int hcID,
+                                        const G4Event* event) const;
+    G4double GetSum(G4THitsMap<G4double>* hitsMap) const;
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
