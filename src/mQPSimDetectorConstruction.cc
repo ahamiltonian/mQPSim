@@ -47,6 +47,8 @@
 #include "G4VPrimitiveScorer.hh"
 #include "G4PSEnergyDeposit.hh"
 
+// reflection stuff
+#include "G4OpBoundaryProcess.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -154,7 +156,8 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
                         "ScintillatorLV");           //its name
 
   // scintillator placement
-  new G4PVPlacement(0,                       //no rotation
+  G4VPhysicalVolume* physScintillator =
+                    new G4PVPlacement(0,                       //no rotation
                     scintillator_pos,        //at position
                     logicScintillator,       //its logical volume
                     "ScintillatorPV",          //its name
@@ -174,6 +177,16 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
 
   // set the scintillator as a sensitive detector
   //fSensitiveDetector->SetSensitiveDetector(logicScintillator)
+
+  // make the scintillator surface reflective (I don't know what this is doing...)
+  G4OpticalSurface *OpticalAirMirror = new G4OpticalSurface("AirMirrorSurface");
+  OpticalAirMirror->SetModel(unified);
+  OpticalAirMirror->SetType(dielectric_dielectric);
+  OpticalAirMirror->SetFinish(polishedfrontpainted);
+
+  new G4LogicalBorderSurface("Air/Mirror Surface",physWorld,physScintillator,OpticalAirMirror);
+
+
 
   //
   // Create the light guide

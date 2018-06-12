@@ -37,7 +37,7 @@ https://stackoverflow.com/questions/23917587/geant4-example-b1-build-error-no-ru
   - do 'source ./geant4.sh'
 
 7. Run a Geant4 example to be sure Geant4 is working
-  - go to the examples directory 'cd ../../geant4.10.04.p01/examples/basic/B1/'
+  - go to the examples directory 'cd ~/geant4-install/share/Geant4-10.4.1/examples/basic/B1/'
   - make a build directory, then go there (ie. do 'mkdir build' then 'cd build')
   - do 'cmake ../'
   - do 'make'
@@ -60,6 +60,8 @@ https://stackoverflow.com/questions/23917587/geant4-example-b1-build-error-no-ru
    - aborting...
 
 
+** When you open a new terminal, you may need to do 'source ~/geant4-install/bin/geant4.sh'
+
 
 ROOT Installation
 ------------------
@@ -73,5 +75,7 @@ ROOT Installation
 WHAT TO DO NEXT LIST...
 -----------------------
 
-- got the ConstructSDandField method implemented in mQPSimDetectorConstruction.cc,
-- follow B4 example to add a hits collection in mQPSimEventAction.cc
+- added hits collection
+- need to make light bounce in scintillator
+  - tryed to use the Goddess package (https://forge.physik.rwth-aachen.de/projects/goddess-package/wiki), could not get boost library to work properly, goddess could not find boost header files, frustrated...
+  -
