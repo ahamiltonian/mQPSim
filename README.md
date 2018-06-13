@@ -14,19 +14,21 @@ GEANT4 Installation
 
 3. Installed XQuartz for macOS from https://www.xquartz.org/ (this gives me X11)
 
-4. Download the data from http://geant4.web.cern.ch/support/download
+4. Install anaconda from anaconda.com (this gives you Qt)
+
+5. Download the data from http://geant4.web.cern.ch/support/download
 
 
 (I tried the pre-compiled version of Geant4, but had some problems, so moved to installing from source code.  A Stack Overflow post that helped me:
 https://stackoverflow.com/questions/23917587/geant4-example-b1-build-error-no-rule-to-make-target)
 
-5. download source code from http://geant4.web.cern.ch/support/download
+6. download source code from http://geant4.web.cern.ch/support/download
   - you should get a tarball named geant4.10.04.p01.tar.gz
   - unpack the tarball (just double click on the file)
   - you should get a folder named geant4.10.04.p01
   - copy that folder to somewhere that you want to have geant installed, I just moved it to my home directory /Users/andrew
 
-6. Build Geant4
+7. Build Geant4
   - make a directory called build (ie. do 'mkdir build')
   - move to that directory (ie. do 'cd build')
   - do 'cmake -DCMAKE_INSTALL_PREFIX=../geant4-install -DGEANT4_USE_QT=ON ../geant4.10.04.p01'
@@ -36,13 +38,13 @@ https://stackoverflow.com/questions/23917587/geant4-example-b1-build-error-no-ru
   - do 'cd ../geant4-install/bin/'
   - do 'source ./geant4.sh'
 
-7. Run a Geant4 example to be sure Geant4 is working
+8. Run a Geant4 example to be sure Geant4 is working
   - go to the examples directory 'cd ~/geant4-install/share/Geant4-10.4.1/examples/basic/B1/'
   - make a build directory, then go there (ie. do 'mkdir build' then 'cd build')
   - do 'cmake ../'
   - do 'make'
 
-8. Download and run mQPSim
+9. Download and run mQPSim
   - start a github account https://github.com/join
   - download the mQPSim code by running 'git clone https://github.com/ahamiltonian/mQPSim.git'
   - this will create an mQPSim directory, go into that directory
@@ -75,7 +77,6 @@ ROOT Installation
 WHAT TO DO NEXT LIST...
 -----------------------
 
-- added hits collection
 - need to make light bounce in scintillator
   - tryed to use the Goddess package (https://forge.physik.rwth-aachen.de/projects/goddess-package/wiki), could not get boost library to work properly, goddess could not find boost header files, frustrated...
-  -
+  - using G4 example in /examples/extended/optical/LXe to try to make optical photons in scintillator

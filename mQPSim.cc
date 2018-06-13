@@ -30,6 +30,7 @@
 
 #include "mQPSimDetectorConstruction.hh"
 #include "mQPSimActionInitialization.hh"
+#include "mQPSimPhysicsList.hh"
 
 #ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
@@ -73,9 +74,10 @@ int main(int argc,char** argv)
   runManager->SetUserInitialization(new mQPSimDetectorConstruction());
 
   // Physics list
-  G4VModularPhysicsList* physicsList = new QBBC;
-  physicsList->SetVerboseLevel(1);
-  runManager->SetUserInitialization(physicsList);
+  // G4VModularPhysicsList* physicsList = new QBBC;
+  // physicsList->SetVerboseLevel(1);
+  // runManager->SetUserInitialization(physicsList);
+  runManager->SetUserInitialization(new mQPSimPhysicsList());
 
   // User action initialization
   runManager->SetUserInitialization(new mQPSimActionInitialization());

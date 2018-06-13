@@ -40,6 +40,7 @@
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4VisAttributes.hh"
 
 // for the ConstructSDandField method
 #include "G4SDManager.hh"
@@ -49,6 +50,10 @@
 
 // reflection stuff
 #include "G4OpBoundaryProcess.hh"
+
+// #include "G4Scintillation.hh"
+
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -76,7 +81,7 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
 
   // Envelope parameters
   //
-  G4double env_sizeXY = 20*cm, env_sizeZ = 200*cm;
+  G4double env_sizeXY = 20*cm, env_sizeZ = 250*cm;
   G4Material* env_mat = nist->FindOrBuildMaterial("G4_AIR");
 
   // Option to switch on/off checking of volumes overlaps
@@ -135,9 +140,36 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
   // Create the scintillator
   //
 
-  // scintillator material and position
+  // scintillator material
   G4Material* scintillator_mat = nist->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
+
+  // specify scintillator proporties (this is default from Listing 5.5 on page 219 of Geant4 manual)
+  const G4int NUMENTRIES = 9;
+  G4double Scnt_PP[NUMENTRIES] = { 6.6*eV, 6.7*eV, 6.8*eV, 6.9*eV,
+                                   7.0*eV, 7.1*eV, 7.2*eV, 7.3*eV, 7.4*eV };
+  G4double Scnt_FAST[NUMENTRIES] = { 0.000134, 0.004432, 0.053991, 0.241971,
+                                     0.398942, 0.000134, 0.004432, 0.053991,
+                                     0.241971 };
+  G4double Scnt_SLOW[NUMENTRIES] = { 0.000010, 0.000020, 0.000030, 0.004000,
+                                     0.008000, 0.005000, 0.020000, 0.001000,
+                                     0.000010 };
+  //G4Material* Scnt;
+  G4MaterialPropertiesTable* Scnt_MPT = new G4MaterialPropertiesTable();
+  Scnt_MPT->AddProperty("FASTCOMPONENT", Scnt_PP, Scnt_FAST, NUMENTRIES);
+  Scnt_MPT->AddProperty("SLOWCOMPONENT", Scnt_PP, Scnt_SLOW, NUMENTRIES);
+  Scnt_MPT->AddConstProperty("SCINTILLATIONYIELD", 5000./MeV);
+  Scnt_MPT->AddConstProperty("RESOLUTIONSCALE", 2.0);
+  Scnt_MPT->AddConstProperty("FASTTIMECONSTANT",  1.*ns);
+  Scnt_MPT->AddConstProperty("SLOWTIMECONSTANT", 10.*ns);
+  Scnt_MPT->AddConstProperty("YIELDRATIO", 0.8);
+  scintillator_mat->SetMaterialPropertiesTable(Scnt_MPT);
+
+
+
+
+  // scintillator position
   G4ThreeVector scintillator_pos = G4ThreeVector(0, 0, 0);
+
 
   // scintillator shape
   G4double scintillator_dx =  10*cm;
@@ -167,16 +199,17 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
                     checkOverlaps);          //overlaps checking
 
   // scintillator visualization attributes
-  // visAttributes = new G4VisAttributes(G4Colour(0.0,0.0,0.9));
-  // visAttributes->SetVisibility(false);
-  // logicScintillator->SetVisAttributes(visAttributes);
-  // fVisAttributes.push_back(visAttributes);
+  G4VisAttributes* visAttributes = new G4VisAttributes(G4Colour(0.0,0.3,0.9,0.5));
+  visAttributes->SetVisibility(true);
+  logicScintillator->SetVisAttributes(visAttributes);
+  //fVisAttributes.push_back(visAttributes);
 
   // set scintillator as scoring volume
   fScoringVolume = logicScintillator;
 
   // set the scintillator as a sensitive detector
   //fSensitiveDetector->SetSensitiveDetector(logicScintillator)
+
 
   // make the scintillator surface reflective (I don't know what this is doing...)
   G4OpticalSurface *OpticalAirMirror = new G4OpticalSurface("AirMirrorSurface");
@@ -193,7 +226,7 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
   //
   // light guide material and position
   G4Material* lightguide_mat = nist->FindOrBuildMaterial("G4_PLEXIGLASS");
-  G4ThreeVector lightguide_pos = G4ThreeVector(0, 0, -70*cm);
+  G4ThreeVector lightguide_pos = G4ThreeVector(0, 0, -80*cm);
 
   // light guide conical section shape
   G4double lightguide_rmina =  0.*cm, lightguide_rmaxa = 2.*cm;

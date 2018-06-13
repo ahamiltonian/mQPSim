@@ -16,4 +16,4 @@
 /control/execute vis.mac
 #
 # Run some events
-/run/beamOn 10
+/run/beamOn 1
