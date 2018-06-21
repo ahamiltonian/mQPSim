@@ -198,9 +198,10 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
 
   // define the optical surface to be the interesection between the scintillator and the world
   G4OpticalSurface *scintWrap = new G4OpticalSurface("ScintWrap");
-  new G4LogicalBorderSurface("ScintWrap", physScintillator,
-                           physWorld,
-                           scintWrap);
+  new G4LogicalBorderSurface("ScintWrap",        // name
+                            physScintillator,    // from volume
+                            physWorld,           // to volume
+                            scintWrap);          // optical surface
 
   // set the optical boundary model (see manual page 222 'Boundary Process')
   scintWrap->SetModel(unified);
