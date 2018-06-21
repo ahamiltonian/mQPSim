@@ -76,34 +76,43 @@ mQPSimDetectorConstruction::~mQPSimDetectorConstruction()
 G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
 {
 
-  // Get nist material manager
+  // get nist material manager
   G4NistManager* nist = G4NistManager::Instance();
 
-  // Envelope parameters
-  //
-  G4double env_sizeXY = 20*cm, env_sizeZ = 250*cm;
-  G4Material* env_mat = nist->FindOrBuildMaterial("G4_AIR");
-
-  // Option to switch on/off checking of volumes overlaps
-  //
+  // switch on checking of volumes overlaps
   G4bool checkOverlaps = true;
 
   //
-  // World
-  //
-  G4double world_sizeXY = 1.2*env_sizeXY;
-  G4double world_sizeZ  = 1.2*env_sizeZ;
-  G4Material* world_mat = nist->FindOrBuildMaterial("G4_AIR");
+  // Create the World
+  //-----------------
 
+  // define the world size
+  G4double world_sizeXY = 30*cm;
+  G4double world_sizeZ  = 300*cm;
+
+  // make the world a box
   G4Box* solidWorld =
-    new G4Box("World",                       //its name
+    new G4Box("World",                                           //its name
        0.5*world_sizeXY, 0.5*world_sizeXY, 0.5*world_sizeZ);     //its size
 
+  // define the world is full of air
+  G4Material* world_mat = nist->FindOrBuildMaterial("G4_AIR");
+
+  // give air a refractive index (needed for optical photons)
+  G4MaterialPropertiesTable *air_mt = new G4MaterialPropertiesTable();
+  G4double air_Energy[3]={2.0*eV,7.0*eV,7.14*eV};
+  G4double air_RIND[3]={1.,1.,1.};
+  air_mt->AddProperty("RINDEX", air_Energy, air_RIND,3);
+  world_mat->SetMaterialPropertiesTable(air_mt);
+
+
+  // create the world logical volume
   G4LogicalVolume* logicWorld =
     new G4LogicalVolume(solidWorld,          //its solid
                         world_mat,           //its material
                         "World");            //its name
 
+  // create the world physical volume
   G4VPhysicalVolume* physWorld =
     new G4PVPlacement(0,                     //no rotation
                       G4ThreeVector(),       //at (0,0,0)
@@ -114,33 +123,23 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
                       0,                     //copy number
                       checkOverlaps);        //overlaps checking
 
-  //
-  // Envelope
-  //
-  G4Box* solidEnv =
-    new G4Box("Envelope",                    //its name
-        0.5*env_sizeXY, 0.5*env_sizeXY, 0.5*env_sizeZ); //its size
-
-  G4LogicalVolume* logicEnv =
-    new G4LogicalVolume(solidEnv,            //its solid
-                        env_mat,             //its material
-                        "Envelope");         //its name
-
-  new G4PVPlacement(0,                       //no rotation
-                    G4ThreeVector(),         //at (0,0,0)
-                    logicEnv,                //its logical volume
-                    "Envelope",              //its name
-                    logicWorld,              //its mother  volume
-                    false,                   //no boolean operation
-                    0,                       //copy number
-                    checkOverlaps);          //overlaps checking
-
 
   //
   // Create the scintillator
-  //
+  // -----------------------
 
-  // scintillator material
+  // define scintillator size & shape
+  G4double scintillator_dx =  10*cm;
+  G4double scintillator_dy =  10*cm;
+  G4double scintillator_dz = 120*cm;
+
+  G4Box* solidScintillator =
+    new G4Box("ScintillatorBox",          //its name
+              0.5*scintillator_dx,
+              0.5*scintillator_dy,
+              0.5*scintillator_dz);       //its size
+
+  // define scintillator material
   G4Material* scintillator_mat = nist->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
 
   // specify scintillator proporties (this is default from Listing 5.5 on page 219 of Geant4 manual)
@@ -153,56 +152,75 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
   G4double Scnt_SLOW[NUMENTRIES] = { 0.000010, 0.000020, 0.000030, 0.004000,
                                      0.008000, 0.005000, 0.020000, 0.001000,
                                      0.000010 };
-  //G4Material* Scnt;
+
   G4MaterialPropertiesTable* Scnt_MPT = new G4MaterialPropertiesTable();
   Scnt_MPT->AddProperty("FASTCOMPONENT", Scnt_PP, Scnt_FAST, NUMENTRIES);
   Scnt_MPT->AddProperty("SLOWCOMPONENT", Scnt_PP, Scnt_SLOW, NUMENTRIES);
-  Scnt_MPT->AddConstProperty("SCINTILLATIONYIELD", 5000./MeV);
+  //Scnt_MPT->AddConstProperty("SCINTILLATIONYIELD", 5000./MeV);
+  Scnt_MPT->AddConstProperty("SCINTILLATIONYIELD", 0.1/MeV); //reduce yield for testing
   Scnt_MPT->AddConstProperty("RESOLUTIONSCALE", 2.0);
   Scnt_MPT->AddConstProperty("FASTTIMECONSTANT",  1.*ns);
   Scnt_MPT->AddConstProperty("SLOWTIMECONSTANT", 10.*ns);
   Scnt_MPT->AddConstProperty("YIELDRATIO", 0.8);
   scintillator_mat->SetMaterialPropertiesTable(Scnt_MPT);
 
+  // set Birk's constant
+  scintillator_mat->GetIonisation()->SetBirksConstant(0.126*mm/MeV);
 
-
-
-  // scintillator position
-  G4ThreeVector scintillator_pos = G4ThreeVector(0, 0, 0);
-
-
-  // scintillator shape
-  G4double scintillator_dx =  10*cm;
-  G4double scintillator_dy =  10*cm;
-  G4double scintillator_dz = 120*cm;
-  G4Box* solidScintillator =
-    new G4Box("ScintillatorBox",          //its name
-              0.5*scintillator_dx,
-              0.5*scintillator_dy,
-              0.5*scintillator_dz);    //its size
-
-  // scintillator logical volume
+  // create scintillator logical volume
   G4LogicalVolume* logicScintillator =
     new G4LogicalVolume(solidScintillator,         //its solid
                         scintillator_mat,          //its material
-                        "ScintillatorLV");           //its name
+                        "ScintillatorLV");         //its name
 
-  // scintillator placement
+  // define scintillator position
+  G4ThreeVector scintillator_pos = G4ThreeVector(0, 0, 0);
+
+  // create scintillator physical volume and place it in the world volume
   G4VPhysicalVolume* physScintillator =
-                    new G4PVPlacement(0,                       //no rotation
+                    new G4PVPlacement(0,     //no rotation
                     scintillator_pos,        //at position
                     logicScintillator,       //its logical volume
-                    "ScintillatorPV",          //its name
-                    logicEnv,                //its mother  volume
+                    "ScintillatorPV",        //its name
+                    logicWorld,              //its mother  volume
                     false,                   //no boolean operation
                     0,                       //copy number
                     checkOverlaps);          //overlaps checking
 
-  // scintillator visualization attributes
+  // define scintillator visualization attributes
   G4VisAttributes* visAttributes = new G4VisAttributes(G4Colour(0.0,0.3,0.9,0.5));
   visAttributes->SetVisibility(true);
   logicScintillator->SetVisAttributes(visAttributes);
-  //fVisAttributes.push_back(visAttributes);
+
+
+  // following https://www-zeuthen.desy.de/geant4/g4course2011/day2/6_opticalphysics/index.html
+  // and Listing 5.8 of the manual, make the scintillator surface reflective
+
+  // define the optical surface to be the interesection between the scintillator and the world
+  G4OpticalSurface *scintWrap = new G4OpticalSurface("ScintWrap");
+  new G4LogicalBorderSurface("ScintWrap", physScintillator,
+                           physWorld,
+                           scintWrap);
+
+  // set the optical boundary model (see manual page 222 'Boundary Process')
+  scintWrap->SetModel(unified);
+  scintWrap->SetType(dielectric_dielectric);
+  scintWrap->SetFinish(polishedfrontpainted);
+
+  // define the optical boundary properties
+  const G4int NUM = 2;
+  G4double pp[NUM] = {2.0*eV, 4.0*eV};
+  G4double rindex[NUM] = {1.35, 1.40};
+  G4double reflectivity[NUM] = {1.0, 1.0};
+  G4double efficiency[NUM] = {0.0, 0.0};
+
+  // set the optical boundary properties
+  G4MaterialPropertiesTable* scintWrapProperty = new G4MaterialPropertiesTable();
+  scintWrapProperty->AddProperty("RINDEX",pp,rindex,NUM);
+  scintWrapProperty->AddProperty("REFLECTIVITY",pp,reflectivity,NUM);
+  scintWrapProperty->AddProperty("EFFICIENCY",pp,efficiency,NUM);
+  scintWrap->SetMaterialPropertiesTable(scintWrapProperty);
+
 
   // set scintillator as scoring volume
   fScoringVolume = logicScintillator;
@@ -211,19 +229,11 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
   //fSensitiveDetector->SetSensitiveDetector(logicScintillator)
 
 
-  // make the scintillator surface reflective (I don't know what this is doing...)
-  G4OpticalSurface *OpticalAirMirror = new G4OpticalSurface("AirMirrorSurface");
-  OpticalAirMirror->SetModel(unified);
-  OpticalAirMirror->SetType(dielectric_dielectric);
-  OpticalAirMirror->SetFinish(polishedfrontpainted);
-
-  new G4LogicalBorderSurface("Air/Mirror Surface",physWorld,physScintillator,OpticalAirMirror);
-
-
-
+/* LEAVE THE LIGHT GUIDE OUT FOR NOW...
   //
   // Create the light guide
-  //
+  // ----------------------
+
   // light guide material and position
   G4Material* lightguide_mat = nist->FindOrBuildMaterial("G4_PLEXIGLASS");
   G4ThreeVector lightguide_pos = G4ThreeVector(0, 0, -80*cm);
@@ -248,15 +258,19 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
                     lightguide_pos,          //at position
                     logicLightguide,         //its logical volume
                     "Lightguide",            //its name
-                    logicEnv,                //its mother  volume
+                    //logicEnv,                //its mother  volume
+                    logicWorld,                //its mother  volume
                     false,                   //no boolean operation
                     0,                       //copy number
                     checkOverlaps);          //overlaps checking
 
+  //
+  // lightguide visualization attributes
+  logicLightguide->SetVisAttributes(visAttributes);
+*/
 
-  //
-  //always return the physical World
-  //
+
+  // always return the physical World
   return physWorld;
 }
 

@@ -116,3 +116,6 @@
 #
 # For file-based drivers, use this to create an empty detector view:
 #/vis/viewer/flush
+
+# Increase the upper limit on the number of particles displayed from 50000 (default)
+#/vis/ogl/set/displayListLimit 1000000
