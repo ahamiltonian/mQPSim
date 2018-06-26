@@ -162,6 +162,7 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
   Scnt_MPT->AddConstProperty("FASTTIMECONSTANT",  1.*ns);
   Scnt_MPT->AddConstProperty("SLOWTIMECONSTANT", 10.*ns);
   Scnt_MPT->AddConstProperty("YIELDRATIO", 0.8);
+  Scnt_MPT->AddConstProperty("RINDEX",1.6);
   scintillator_mat->SetMaterialPropertiesTable(Scnt_MPT);
 
   // set Birk's constant
@@ -210,7 +211,7 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
 
   // define the optical boundary properties
   const G4int NUM = 2;
-  G4double pp[NUM] = {2.0*eV, 4.0*eV};
+  G4double pp[NUM] = {6.6*eV, 7.4*eV};
   G4double rindex[NUM] = {1.35, 1.40};
   G4double reflectivity[NUM] = {1.0, 1.0};
   G4double efficiency[NUM] = {0.0, 0.0};
