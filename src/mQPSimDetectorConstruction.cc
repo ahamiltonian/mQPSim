@@ -417,8 +417,23 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
   // Create the light guide
   // ----------------------
 
-  // light guide material and position
+  // light guide material properties
   G4Material* lightguide_mat = nist->FindOrBuildMaterial("G4_PLEXIGLASS");
+
+  //const G4int NUMENTRIES = 9;
+  G4double lightguide_PP[NUMENTRIES] = { 6.6*eV, 6.7*eV, 6.8*eV, 6.9*eV,
+                                         7.0*eV, 7.1*eV, 7.2*eV, 7.3*eV, 7.4*eV };
+  G4double lightguide_ABSLENGTH[NUMENTRIES]={50.*cm, 50.*cm, 50.*cm, 50.*cm, 50.*cm,
+                                             50.*cm, 50.*cm, 50.*cm, 50.*cm};
+
+  G4double lightguide_RINDEX[NUMENTRIES]={ 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5};
+
+  G4MaterialPropertiesTable* lightguide_MPT = new G4MaterialPropertiesTable();
+  lightguide_MPT->AddProperty("RINDEX",lightguide_PP, lightguide_RINDEX, NUMENTRIES);
+  lightguide_MPT->AddProperty("ABSLENGTH",lightguide_PP,lightguide_ABSLENGTH,NUMENTRIES);
+  lightguide_mat->SetMaterialPropertiesTable(lightguide_MPT);
+
+  // light guide position
   G4ThreeVector lightguide_pos = G4ThreeVector(0, 0, -80*cm);
 
   // light guide conical section shape
@@ -437,7 +452,8 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
                         lightguide_mat,          //its material
                         "Lightguide");           //its name
   // light guide placement
-  new G4PVPlacement(0,                       //no rotation
+  G4VPhysicalVolume* physLightGuide =
+    new G4PVPlacement(0,                       //no rotation
                     lightguide_pos,          //at position
                     logicLightguide,         //its logical volume
                     "Lightguide",            //its name
@@ -446,6 +462,13 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
                     false,                   //no boolean operation
                     0,                       //copy number
                     checkOverlaps);          //overlaps checking
+
+  // wrap the lightguide in reflective material as well
+  new G4LogicalBorderSurface("ScintWrap",        // name
+                              physLightGuide,    // from volume
+                              physWorld,           // to volume
+                              scintWrap);          // optical surface
+
 
   //
   // lightguide visualization attributes
