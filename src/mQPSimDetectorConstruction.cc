@@ -145,54 +145,27 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
 
 
   // specify scintillator proporties
-  const G4int NUMENTRIES = 9;
-  G4double Scnt_PP[NUMENTRIES] = { 6.6*eV, 6.7*eV, 6.8*eV, 6.9*eV,
-                                   7.0*eV, 7.1*eV, 7.2*eV, 7.3*eV, 7.4*eV };
-  G4double Scnt_FAST[NUMENTRIES] = { 0.000134, 0.004432, 0.053991, 0.241971,
-                                     0.398942, 0.000134, 0.004432, 0.053991,
-                                     0.241971 };
-  G4double Scnt_SLOW[NUMENTRIES] = { 0.000010, 0.000020, 0.000030, 0.004000,
-                                     0.008000, 0.005000, 0.020000, 0.001000,
-                                     0.000010 };
+  // numbers estimated from Bicron BC-408 Emission Spectra
+  // (https://www.crystals.saint-gobain.com/sites/imdf.crystals.com/files/documents/sgc-bc400-404-408-412-416-data-sheet.pdf)
 
-  G4double Scnt_ABSLENGTH[NUMENTRIES]={50.*cm, 50.*cm, 50.*cm, 50.*cm, 50.*cm,
-                                       50.*cm, 50.*cm, 50.*cm, 50.*cm};
+  const G4int NUMENTRIES = 9;
+  G4double Scnt_PP[NUMENTRIES] = {    2.38*eV, 2.48*eV, 2.58*eV, 2.70*eV, 2.82*eV, 2.95*eV, 3.10*eV, 3.26*eV, 3.44*eV };
+  G4double Scnt_FAST[NUMENTRIES] = {  0.00,    0.02,    0.04,    0.11,    0.21,    0.36,    0.21,    0.04,    0.02 };
+  G4double Scnt_ABSLENGTH[NUMENTRIES]={210.*cm, 210.*cm, 210.*cm, 210.*cm, 210.*cm,
+                                       210.*cm, 210.*cm, 210.*cm, 210.*cm};
 
   G4double Scnt_RINDEX[NUMENTRIES]={ 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5};
 
   G4MaterialPropertiesTable* Scnt_MPT = new G4MaterialPropertiesTable();
   Scnt_MPT->AddProperty("RINDEX",Scnt_PP, Scnt_RINDEX, NUMENTRIES);
   Scnt_MPT->AddProperty("FASTCOMPONENT", Scnt_PP, Scnt_FAST, NUMENTRIES);
-  Scnt_MPT->AddProperty("SLOWCOMPONENT", Scnt_PP, Scnt_SLOW, NUMENTRIES);
   Scnt_MPT->AddProperty("ABSLENGTH",Scnt_PP,Scnt_ABSLENGTH,NUMENTRIES);
   //Scnt_MPT->AddConstProperty("SCINTILLATIONYIELD", 5000./MeV);
   Scnt_MPT->AddConstProperty("SCINTILLATIONYIELD", 0.1/MeV); //reduce yield for testing
   Scnt_MPT->AddConstProperty("RESOLUTIONSCALE", 2.0);
-  Scnt_MPT->AddConstProperty("FASTTIMECONSTANT",  1.*ns);
-  Scnt_MPT->AddConstProperty("SLOWTIMECONSTANT", 10.*ns);
-  Scnt_MPT->AddConstProperty("YIELDRATIO", 0.8);
+  Scnt_MPT->AddConstProperty("FASTTIMECONSTANT",  2.*ns);
   scintillator_mat->SetMaterialPropertiesTable(Scnt_MPT);
-
-
-
-  // // specify scintillator proporties (this is from LXe example)
-  // // with these settings, the photons reflect in the scintillator (but the muon track is lost for some reason...)
-  // const G4int NUMENTRIES = 4;
-  // G4double Scnt_PP[NUMENTRIES] = {2.00*eV,2.87*eV,2.90*eV,3.47*eV};;
-  // G4double Scnt_ABSLENGTH[NUMENTRIES]={5.*cm, 5.*cm, 5.*cm, 5.*cm};
-  // G4double Scnt_RINDEX[NUMENTRIES]={ 1.5, 1.5, 1.5, 1.5};
-  // G4double Scnt_FAST[NUMENTRIES] = {0.00, 0.00, 1.00, 1.00};
-  //
-  // G4MaterialPropertiesTable* Scnt_MPT = new G4MaterialPropertiesTable();
-  // Scnt_MPT->AddProperty("RINDEX",Scnt_PP, Scnt_RINDEX, NUMENTRIES);
-  // Scnt_MPT->AddProperty("ABSLENGTH",Scnt_PP,Scnt_ABSLENGTH,NUMENTRIES);
-  // Scnt_MPT->AddProperty("FASTCOMPONENT", Scnt_PP, Scnt_FAST, NUMENTRIES);
-  // Scnt_MPT->AddConstProperty("SCINTILLATIONYIELD", 0.1/MeV); //reduce yield for testing
-  // Scnt_MPT->AddConstProperty("RESOLUTIONSCALE", 1.0);
-  // Scnt_MPT->AddConstProperty("FASTTIMECONSTANT",  10.*ns);
-  // scintillator_mat->SetMaterialPropertiesTable(Scnt_MPT);
-  // scintillator_mat->GetIonisation()->SetBirksConstant(0.126*mm/MeV);
-
+  scintillator_mat->GetIonisation()->SetBirksConstant(0.126*mm/MeV);
 
 
   // create scintillator logical volume
@@ -266,10 +239,10 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
   G4Material* lightguide_mat = nist->FindOrBuildMaterial("G4_PLEXIGLASS");
 
   //const G4int NUMENTRIES = 9;
-  G4double lightguide_PP[NUMENTRIES] = { 6.6*eV, 6.7*eV, 6.8*eV, 6.9*eV,
-                                         7.0*eV, 7.1*eV, 7.2*eV, 7.3*eV, 7.4*eV };
-  G4double lightguide_ABSLENGTH[NUMENTRIES]={50.*cm, 50.*cm, 50.*cm, 50.*cm, 50.*cm,
-                                             50.*cm, 50.*cm, 50.*cm, 50.*cm};
+  G4double lightguide_PP[NUMENTRIES] = {    2.38*eV, 2.48*eV, 2.58*eV, 2.70*eV, 2.82*eV, 2.95*eV, 3.10*eV, 3.26*eV, 3.44*eV };
+
+  G4double lightguide_ABSLENGTH[NUMENTRIES]={210.*cm, 210.*cm, 210.*cm, 210.*cm, 210.*cm,
+                                             210.*cm, 210.*cm, 210.*cm, 210.*cm};
 
   G4double lightguide_RINDEX[NUMENTRIES]={ 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5};
 
@@ -329,10 +302,11 @@ G4VPhysicalVolume* mQPSimDetectorConstruction::Construct()
   G4Material* pmtface_mat = nist->FindOrBuildMaterial("G4_PLEXIGLASS");
 
   //const G4int NUMENTRIES = 9;
-  G4double pmtface_PP[NUMENTRIES] = { 6.6*eV, 6.7*eV, 6.8*eV, 6.9*eV,
-                                         7.0*eV, 7.1*eV, 7.2*eV, 7.3*eV, 7.4*eV };
-  G4double pmtface_ABSLENGTH[NUMENTRIES]={50.*cm, 50.*cm, 50.*cm, 50.*cm, 50.*cm,
-                                             50.*cm, 50.*cm, 50.*cm, 50.*cm};
+  G4double pmtface_PP[NUMENTRIES] = {    2.38*eV, 2.48*eV, 2.58*eV, 2.70*eV, 2.82*eV, 2.95*eV, 3.10*eV, 3.26*eV, 3.44*eV };
+
+
+  G4double pmtface_ABSLENGTH[NUMENTRIES]={210.*cm, 210.*cm, 210.*cm, 210.*cm, 210.*cm,
+                                             210.*cm, 210.*cm, 210.*cm, 210.*cm};
 
   G4double pmtface_RINDEX[NUMENTRIES]={ 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5};
 
