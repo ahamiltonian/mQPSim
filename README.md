@@ -80,3 +80,10 @@ WHAT TO DO NEXT LIST...
 - need to make light bounce in scintillator
   - tryed to use the Goddess package (https://forge.physik.rwth-aachen.de/projects/goddess-package/wiki), could not get boost library to work properly, goddess could not find boost header files, frustrated...
   - using G4 example in /examples/extended/optical/LXe to try to make optical photons in scintillator
+ 
+
+VISUAL
+------
+
+![MQPSim_ExampleVisual](https://github.com/ahamiltonian/mQPSim/assets/25381062/4b5e100d-6205-49bc-b4cc-95b792f52a69)
+
