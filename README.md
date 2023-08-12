@@ -86,4 +86,5 @@ VISUAL
 ------
 
 ![MQPSim_ExampleVisual](https://github.com/ahamiltonian/mQPSim/assets/25381062/4b5e100d-6205-49bc-b4cc-95b792f52a69)
+
 Blue lines (in the red square) represent a muon entering the detector and several muons created in the initial interaction leaving the detector.  Green lines represent optical photons created in and traversing through the detector volume.  The orange square represents the photomultiplier tube (PMT) face, red dots represent photons that reached the PMT.
